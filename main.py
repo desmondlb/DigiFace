@@ -60,7 +60,7 @@ def calc_prior_distribution() -> dict:
 ldct_counts_y_true = {}
 ldct_counts_y_false = {}
 
-def calc_prob_x_given_y(data_t, y_true, y_false, y):
+def calc_prob_x_given_y_raw(data_t, y_true, y_false, y):
     
     global ldct_counts_y_true, ldct_counts_y_false
 
@@ -162,7 +162,7 @@ def calc_prob_test():
         for i in range(10):
             list_indices = np.where(lables==i)
 
-            num_a, denom_a = calc_prob_x_given_y(
+            num_a, denom_a = calc_prob_x_given_y_raw(
                 data, digits[list_indices], np.delete(digits, [list_indices], 0), i)
 
             val = (num_a + np.log10(prior_probabilities_y_true[i]))/(denom_a + np.log10(prior_probabilities_y_false[i]))
