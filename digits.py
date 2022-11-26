@@ -7,6 +7,8 @@ lables = open('data/digitdata/traininglabels').read().splitlines()
 test_lines = open('data/digitdata/testimages').read().splitlines()
 test_lables = open('data/digitdata/testlabels').read().splitlines()
 
+class_wise_feature_distribution_table = None
+
 digits = []
 ptr1 = 0
 while ptr1 != len(lines):
@@ -45,7 +47,7 @@ test_digits = np.array(test_digits)
 lables = np.array(list(lables), dtype=int)
 test_lables = np.array(list(test_lables), dtype=int)
 
-def calc_prior_distribution() -> dict:
+def calc_prior_class_prob() -> dict:
     prior_prob = {}
     prior_prob_neg = {}
 
@@ -60,13 +62,13 @@ def calc_prior_distribution() -> dict:
 ldct_counts_y_true = {}
 ldct_counts_y_false = {}
 
-def calc_prob_x_given_y_four_blocks(data_t, y_true, y_false, y, block_size):
+def calc_prob_x_given_y_four_blocks(data_t, y_true, y, block_size):
     
-    global ldct_counts_y_true, ldct_counts_y_false
+    global class_wise_feature_distribution_table
 
-    prob_f_given_y = {}
     prod_prob = 0
     prod_prob_y_false = 0
+    feature_counter = 0
     for i in range(int(28/block_size[0])):
         for j in range(int(28/block_size[1])):
 
@@ -74,14 +76,18 @@ def calc_prob_x_given_y_four_blocks(data_t, y_true, y_false, y, block_size):
                 data_t[i*block_size[0]:(i+1)*block_size[0], j*block_size[1]:(j+1)*block_size[1]] == 1)
 
             if dt_ones:
-                num_times_phi = 0
-                for d in y_true:
-                    x = np.count_nonzero(
-                        d[i*block_size[0]:(i+1)*block_size[0], j*block_size[1]:(j+1)*block_size[1]] == 1)
-                    if abs(x - dt_ones) <= 2:
-                        num_times_phi += 1
+
+                num_times_phi = class_wise_feature_distribution_table[y][feature_counter][dt_ones]
+                # num_times_phi = 0
+                # for d in y_true:
+                #     x = np.count_nonzero(
+                #         d[i*block_size[0]:(i+1)*block_size[0], j*block_size[1]:(j+1)*block_size[1]] == 1)
+                #     if abs(x - dt_ones) <= 4:
+                #         num_times_phi += 1
                 if num_times_phi:
                     prod_prob += np.log10(num_times_phi) + np.log10(num_times_phi/len(y_true))
+
+            feature_counter += 1
                 # else:
                 #     prod_prob += 0
                     
@@ -140,7 +146,7 @@ def calc_prob_test():
             list_indices = np.where(lables==i)
 
             num_a, denom_a = calc_prob_x_given_y_four_blocks(
-                data, digits[list_indices], np.delete(digits, [list_indices], 0), i, (4, 4))
+                data, digits[list_indices], i, (4, 1))
 
             # val = (num_a + np.log10(prior_probabilities_y_true[i]))/(denom_a + np.log10(prior_probabilities_y_false[i]))
 
@@ -152,7 +158,35 @@ def calc_prob_test():
 
     return final
 
-prior_probabilities_y_true,  prior_probabilities_y_false = calc_prior_distribution()
+
+def calc_feature_distribution(block_size) -> list:
+
+    class_wise_feature_distribution = []
+
+    for i in range(10):
+        table = np.zeros(shape=((28//block_size[0])*(28//block_size[1]),1+block_size[0]*block_size[1]), dtype=int)
+        list_indices = np.where(lables==i)
+
+        feature_counter = 0
+        for j in range(28//block_size[0]):
+            for k in range(28//block_size[1]):
+                for digit in digits[list_indices]:
+                    value = np.count_nonzero(
+                        digit[j*block_size[0]:(j+1)*block_size[0], k*block_size[1]:(k+1)*block_size[1]] == 1)
+
+                    table[feature_counter][value] += 1
+
+                feature_counter += 1
+
+        class_wise_feature_distribution.append(table)
+        
+
+    return class_wise_feature_distribution
+
+prior_probabilities_y_true,  prior_probabilities_y_false = calc_prior_class_prob()
+
+class_wise_feature_distribution_table = calc_feature_distribution((4,1))
+
 f = calc_prob_test()
 f = np.array(f)
 
