@@ -67,20 +67,35 @@ def calc_prob_x_given_y_four_blocks(data_t, y_true, y_false, y, block_size):
     prob_f_given_y = {}
     prod_prob = 0
     prod_prob_y_false = 0
-    for i in range(int(28/block_size)):
-        for j in range(int(28/block_size)):
+    for i in range(int(28/block_size[0])):
+        for j in range(int(28/block_size[1])):
 
-            dt_ones = np.count_nonzero(data_t[i*4:(i+1)*4, j*4:(j+1)*4] == 1)
+            dt_ones = np.count_nonzero(
+                data_t[i*block_size[0]:(i+1)*block_size[0], j*block_size[1]:(j+1)*block_size[1]] == 1)
+
             if dt_ones:
                 num_times_phi = 0
                 for d in y_true:
-                    x = np.count_nonzero(d[i*4:(i+1)*4, j*4:(j+1)*4] == 1)
-                    if abs(x - dt_ones) <= 4:
+                    x = np.count_nonzero(
+                        d[i*block_size[0]:(i+1)*block_size[0], j*block_size[1]:(j+1)*block_size[1]] == 1)
+                    if abs(x - dt_ones) <= 2:
                         num_times_phi += 1
                 if num_times_phi:
-                    prod_prob += np.log10(num_times_phi/len(y_true))
-                else:
-                    prod_prob += 10**-9
+                    prod_prob += np.log10(num_times_phi) + np.log10(num_times_phi/len(y_true))
+                # else:
+                #     prod_prob += 0
+                    
+            # dt_ones = np.count_nonzero(data_t[i*4:(i+1)*4, j*4:(j+1)*4] == 1)
+            # if dt_ones:
+            #     num_times_phi = 0
+            #     for d in y_true:
+            #         x = np.count_nonzero(d[i*4:(i+1)*4, j*4:(j+1)*4] == 1)
+            #         if abs(x - dt_ones) <= 4:
+            #             num_times_phi += 1
+            #     if num_times_phi:
+            #         prod_prob += np.log10(num_times_phi/len(y_true))
+            #     else:
+            #         prod_prob += 10**-9
 
             # if count_ones!=0:
             # dt_ones = np.count_nonzero(data_t[i*4:(i+1)*4, j*4:(j+1)*4] == 1)
@@ -125,7 +140,7 @@ def calc_prob_test():
             list_indices = np.where(lables==i)
 
             num_a, denom_a = calc_prob_x_given_y_four_blocks(
-                data, digits[list_indices], np.delete(digits, [list_indices], 0), i, 4)
+                data, digits[list_indices], np.delete(digits, [list_indices], 0), i, (4, 4))
 
             # val = (num_a + np.log10(prior_probabilities_y_true[i]))/(denom_a + np.log10(prior_probabilities_y_false[i]))
 
