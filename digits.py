@@ -9,22 +9,29 @@ class Digits(Bayesian):
 
 if __name__ == '__main__':
     
-    obj = Digits(feature_dims={"HEIGHT":4,"WIDTH":1})
+    
 
     train_data_path = 'data/digitdata/trainingimages'
     train_label_path = 'data/digitdata/traininglabels'
     test_data_path = 'data/digitdata/testimages'
     test_label_path = 'data/digitdata/testlabels'
 
-    obj.read_data(
-        train_data_path=train_data_path, train_label_path=train_label_path, 
-        test_data_path=test_data_path,test_label_path=test_label_path)
+    accuracies = []
 
-    obj.calc_prior_class_prob()
+    for i in range(1, 11):
+        obj = Digits(feature_dims={"HEIGHT":4,"WIDTH":1})
+        obj.read_data(
+            train_data_path=train_data_path, train_label_path=train_label_path, 
+            test_data_path=test_data_path,test_label_path=test_label_path, train_percentage = i*0.1)
 
-    obj.calc_feature_distribution(obj.feature_dims)
+        obj.calc_prior_class_prob()
 
-    f = obj.calc_prob_test(obj.feature_dims)
-    f = np.array(f)
+        obj.calc_feature_distribution(obj.feature_dims)
 
-    print(sum(1 for x,y in zip(obj.test_lables,f) if x == y) / len(obj.test_lables))
+        f = obj.calc_prob_test(obj.feature_dims)
+        f = np.array(f)
+
+
+        accuracies.append(sum(1 for x,y in zip(obj.test_lables,f) if x == y) / len(obj.test_lables))
+    
+    print(accuracies)

@@ -133,7 +133,7 @@ class Bayesian(ABC):
 
     def read_data(
         self, train_data_path = None, train_label_path = None, 
-        test_data_path = None, test_label_path = None):
+        test_data_path = None, test_label_path = None, train_percentage = 1):
         
         train_data_raw = open(train_data_path).read().splitlines()
         train_labels_raw = open(train_label_path).read().splitlines()
@@ -145,6 +145,9 @@ class Bayesian(ABC):
 
         self.train_data = self.data_parser(train_data_raw)
         self.train_lables = self.label_parser(train_labels_raw)
+
+        self.train_data = self.train_data[:int(len(self.train_data)*train_percentage)]
+        self.train_lables = self.train_lables[:int(len(self.train_lables)*train_percentage)]
 
         self.test_data = self.data_parser(test_data_raw)
         self.test_lables = self.label_parser(test_lables_raw)
