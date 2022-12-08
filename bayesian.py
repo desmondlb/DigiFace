@@ -1,5 +1,6 @@
 from abc import *
 import numpy as np
+from sklearn.utils import shuffle
 
 class Bayesian(ABC):
     def __init__(self) -> None:
@@ -146,6 +147,7 @@ class Bayesian(ABC):
         self.train_data = self.data_parser(train_data_raw)
         self.train_lables = self.label_parser(train_labels_raw)
 
+        self.train_data, self.train_lables = shuffle(self.train_data, self.train_lables)
         self.train_data = self.train_data[:int(len(self.train_data)*train_percentage)]
         self.train_lables = self.train_lables[:int(len(self.train_lables)*train_percentage)]
 
