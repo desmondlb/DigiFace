@@ -11,7 +11,6 @@ class FaceTrain:
     def __init__(self):
         self.height = 70
         self.width = 60
-        self.count = 0
 
 
 
@@ -91,7 +90,7 @@ class FaceTrain:
                 print(">", end="")
                 data_train, labels_train = self.rand_sampled_train_data(data_train_init, labels_train_init, limit)
 
-                p = Perceptron(method='delta', w=w)
+                p = Perceptron(method='0', w=w)
 
                 # agg_error and iter are used to calculate the weighted average of error
                 agg_error = np.zeros(4201)
@@ -149,7 +148,7 @@ if __name__ == '__main__':
     # Graph of Accuracy Stats
     plt.errorbar([i * 10 for i in range(1, 11)], means, yerr=std_deviations, ecolor='k', fmt='o', markersize=8,
                  capsize=6, color="r", linestyle="-")
-    plt.ylim(0, 100)
+    #plt.ylim(0, 100)
     plt.xlabel("Percentage of training data (Digits)")
     plt.ylabel("Accuracy with Standard Deviation")
     plt.legend()

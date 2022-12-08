@@ -4,18 +4,15 @@ from Perceptron import Perceptron
 from statistics import stdev, mean
 import matplotlib.pyplot as plt
 
-
-
+# Class to train Perceptron to classify digits
 class DigitTrain:
 
 
     def __init__(self):
         self.height = 28
         self.width = 28
-        self.count = 0
 
 
-    # read of file returns an empty string at EOF
 
     #---------------------------------------------------#
     # 2. Load and extract features from file
@@ -95,9 +92,9 @@ class DigitTrain:
                 print(">", end="")
                 data_train, labels_train = self.rand_sampled_train_data(data_train_init,
                                                                         labels_train_init, limit)
-                p = Perceptron(method='weighted avg delta', w=w)
+                p = Perceptron(method='0', w=w)
 
-                # agg_error and iter are used to calculated weighted average of error
+                # agg_error and iter are used to calculate weighted average of error
                 agg_error = np.zeros(785)
                 iter = 0.0
 
@@ -153,7 +150,7 @@ if __name__ == '__main__':
     # Graph of Accuracy Stats
     plt.errorbar([i * 10 for i in range(1, 11)], means, yerr=std_deviations, ecolor='k', fmt='o', markersize=8,
                  capsize=6, color="r", linestyle="-")
-    plt.ylim(0, 100)
+    #plt.ylim(0, 100)
     plt.xlabel("Percentage of training data (Digits)")
     plt.ylabel("Accuracy with Standard Deviation")
     plt.legend()
