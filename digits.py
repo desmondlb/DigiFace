@@ -1,10 +1,14 @@
+import random
+import statistics
 import numpy as np
 from statistics import stdev
 from bayesian import Bayesian
+from SVM import SVM
+from sklearn import metrics
 import matplotlib.pyplot as plt
 import time
 
-class Digits(Bayesian):
+class Digits(Bayesian, SVM):
     def __init__(self, feature_dims=None) -> None:
 
         self.feature_dims = feature_dims
@@ -16,7 +20,7 @@ if __name__ == '__main__':
     train_label_path = 'data/digitdata/traininglabels'
     test_data_path = 'data/digitdata/testimages'
     test_label_path = 'data/digitdata/testlabels'
-
+  
     accuracies = {}
     std_deviation = {}
     runtimes = {}
@@ -30,8 +34,30 @@ if __name__ == '__main__':
             obj.read_data(
                 train_data_path=train_data_path, train_label_path=train_label_path, 
                 test_data_path=test_data_path,test_label_path=test_label_path, train_percentage = i*0.1)
-
-            obj.calc_prior_class_prob()
+  
+            accuracy = obj.classifier(obj.train_data,obj.train_lables,obj.test_data,obj.test_lables)
+    print("shape",obj.train_data.shape)
+    iter = [10,20,30,40,50,60,70,80,90,100]
+    obj_train_s = obj.train_data.shape[0]/100
+    itr =[int(item * obj_train_s) for item in iter]
+    acc = [[0]*10]*10
+    mean_acc =[0]*10
+    std_acc = [0]*10     
+       
+    for count in range(0,10):   
+        itr_data_train = []
+        itr_data_train_labels=[]
+        index = random.sample(range(0,obj.train_data.shape[0]),itr[count])
+        for j in range(0,len(index)):
+            itr_data_train.append(obj.train_data[index[j],:,:])
+            itr_data_train_labels.append(obj.train_lables[index[j]])
+        acc[count]=obj.classifier(itr_data_train,itr_data_train_labels,obj.test_data,obj.test_lables)
+        print("On",iter[count],"percent data accuracy with SVM on digits is:",acc[count]*100,"\n")
+    mean_acc=statistics.fmean(acc)
+    std_acc= statistics.stdev(acc)
+    print("Mean accuracy in percentage with SVM on digits is: ",mean_acc*100)
+    print("Standard deviation with SVM on digits is: ",std_acc)
+    obj.calc_prior_class_prob()
 
             obj.calc_feature_distribution(obj.feature_dims)
 
@@ -61,3 +87,5 @@ if __name__ == '__main__':
     plt.xlabel("Percentage of training data (Digits)")
     plt.ylabel("Runtime of the Algorithm (Per Iteration)")
     plt.show()
+
+
