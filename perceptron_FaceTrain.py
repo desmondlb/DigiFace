@@ -1,31 +1,25 @@
 import numpy as np
 from Perceptron import Perceptron
-from statistics import stdev
-import json
-import sys
-import numpy
-numpy.set_printoptions(threshold=sys.maxsize)
+from statistics import stdev, mean
+import matplotlib.pyplot as plt
+import time
 
-
+# Class to train Perceptron to classify faces
 class FaceTrain:
-    #write the code to import data as pixels
+
 
     def __init__(self):
         self.height = 70
         self.width = 60
         self.count = 0
-        #data = [[0]*width for i in range (height)]
-        #self.data_train = []
-        #self.data_label
 
 
-    #read of file returns an empty string at EOF
 
-
+    #---------------------------------------------------#
+    # 2. Load and extract features from file
+    #---------------------------------------------------#
     def loadData(self, path):
-        #################### LOAD TRAINING DATA###########################
         temp = open(path).readlines()
-
         data = []
         k = 0
         while True:
@@ -39,112 +33,100 @@ class FaceTrain:
                     else:
                         x.append(0)
                 k += 1
-            #print("processing- " ,k)
             data.append(x)
 
-
-        #print(len(data_train))
         return data
 
-
-
-
-    '''
-    for i in range(0,height):
-        for j in range(0,width):
-            print(x[i][j], end="")
-        print()
-    '''
-
-    '''
-    print(len(data_train[449]))
-    
-    k=0
-    for i in range(0,height):
-        for j in range (0, width):
-            print(data_train[2][k], end="")
-            k+=1
-        print()
-    '''
-
-
+    # ---------------------------------------------------#
+    # Load labels from file
+    # ---------------------------------------------------#
     def loadLabels(self, path):
-        ###############################LOAD TRAINING LABELS##############################
-        labels = []
         labels = [int(i) for i in open(path).read().splitlines()]
-        #print(len(labels))
-        #print(labels)
         return labels
 
-    def writeInitialWeights(self, w):
+    # ---------------------------------------------------#
+    # 3. Function to randomly sample training data
+    # ---------------------------------------------------#
+    def rand_sampled_train_data(self, data, label, count):
+        temp_data = []
+        temp_label = []
+        for i in range(count):
+            j = np.random.randint(0, len(data))
+            temp_data.append(data[j])
+            temp_label.append(label[j])
 
-        with open('starting_points.txt', 'w') as f:
-            x = json.loads(w)
-            f.write(json.dumps(x))
+        return np.array(temp_data), np.array(temp_label)
 
 
-    def run(self, percentData):
-        data_train = self.loadData(path="classification/facedata/facedatatrain")
-        labels_train = self.loadLabels(path='classification/facedata/facedatatrainlabels')
+    # ---------------------------------------------------------------------------#
+    # 3,4. Primary function which Creates & Trains Perceptron and Collects Stats
+    # ---------------------------------------------------------------------------#
+    def run(self):
+        data_train_init = self.loadData(path="classification/facedata/facedatatrain")
+        labels_train_init = self.loadLabels(path='classification/facedata/facedatatrainlabels')
         data_test = self.loadData(path='classification/facedata/facedatatest')
         labels_test = self.loadLabels(path='classification/facedata/facedatatestlabels')
-        limit = int(451*percentData)
-        acc_agg = []
-        print(len(data_train))
-        #p = Perceptron()
 
-        #print(p.weights_1)
-        #print(p.lr)
-        #print(len(labels_train))
+        avg_accuracy = []
+        stdev_accuracy = []
+        runtimes = []
+        partitions = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
-        '''
-        print("Before Training")
-        print("Guess | Actual")
-        for i in range(401,421):
-            input = p.inputVector(features= data_train[i])
-            guess = p.classify(input=input)
-            print(guess," | ",labels_train[i])
-        '''
+        # Trains perceptron over different partitions of data
+        # Collects statistics - average accuracy over 10 iterations,
+        #                       standard deviation of accuracy over 10 iterations,
+        #                       average training time over 10 iterations
+        for percentData in partitions:
 
-        # compare other samples after training-
-        '''
-        print("After Training")
-        print("Guess | Actual")
-        for i in range(401, 421):
-            input = p.inputVector(features=data_train[i])
-            guess = p.classify(input=input)
-            print(guess, " | ", labels_train[i])
-        '''
+            # Limit on training data to be sampled
+            limit = int(len(data_train_init) * percentData)
 
-        for j in range(1):
-            print(">", end="")
-            p = Perceptron(2, 4201)
-            print(p.weights)
-            #self.writeInitialWeights(p.weights)
-            agg_error = 0.0
-            iter = 0.0
-            #acc_agg.append(obj.run(0.1))
-            #print(data_train[:45])
-            for i in range(limit):
-                iter += 0.1**i
-                agg_error += p.train(features=data_train[i], label=labels_train[i],
-                                     prev_error=agg_error, iter=iter)
-                agg_error *= 0.1
-            print(p.weights)
-            acc_agg.append(self.accuracy(p,data_test,labels_test, limit))
-            print(acc_agg)
+            acc_agg = []
+            time_agg = []
+            w = np.random.normal(0, 1, (2, 4201))
+
+            #runs 10 iterations for percent partitions of data
+            for j in range(10):
+                start_time = time.time()
+                print(">", end="")
+                data_train, labels_train = self.rand_sampled_train_data(data_train_init, labels_train_init, limit)
+
+                p = Perceptron(method='delta', w=w)
+
+                # agg_error and iter are used to calculate the weighted average of error
+                agg_error = np.zeros(4201)
+                iter = 0.0
+
+                for i in range(limit):
+                    iter += 0.1**i
+                    delta = p.train(features=data_train[i], label=labels_train[i],
+                                         prev_error=agg_error, iter=iter)
+
+                    #aggregated error
+                    for k in range(0, len(delta)):
+                        agg_error[k] += delta[k]
+                    agg_error *= 0.1
+
+                # accuracy and runtime of each iteration are stored in following arrays -
+                acc_agg.append(self.accuracy(p, data_test, labels_test, limit))
+                time_agg.append(time.time() - start_time)
+
+            print(percentData * 100, "% training data complete")
+            avg_accuracy.append(mean(acc_agg))
+            stdev_accuracy.append(stdev(acc_agg))
+            runtimes.append(mean(time_agg))
+
+        return avg_accuracy, stdev_accuracy, runtimes
 
 
 
-
-        return acc_agg
-        #return self.accuracy(p,data_train,labels_train, limit)
-
+    # ----------------------------------------------------------------#
+    # 4. Function to calculate accuracy of classification on Test Data
+    # ----------------------------------------------------------------#
     def accuracy(self, p, data, labels, limit):
-
         count = 0
         correct_count = 0
-        #for i in range(limit,451):
+
         for i in range(len(labels)):
             input = p.inputVector(features=data[i])
             guess = p.classify(input=input)
@@ -152,24 +134,32 @@ class FaceTrain:
                 correct_count += 1
             count += 1
 
-
-        #print("Accuracy avg: ", acc_agg/10)
-        return (correct_count/count)*100
-
-
-
+        return (correct_count / count) * 100
 
 
 
 if __name__ == '__main__':
     obj = FaceTrain()
+    means, std_deviations, runtimes = obj.run()
 
-    acc_agg = obj.run(1)
-    print("Avg accuracy : ", sum(acc_agg)/1)
-    print("Standard deviation: ", stdev(acc_agg))
-    print("Accuracy Range : ", max(acc_agg) - min(acc_agg))
+    print("Avg accuracy : ", means)
+    print("Runtimes : ", runtimes)
+    print("Standard deviation: ", std_deviations)
 
+    # Graph of Accuracy Stats
+    plt.errorbar([i * 10 for i in range(1, 11)], means, yerr=std_deviations, ecolor='k', fmt='o', markersize=8,
+                 capsize=6, color="r", linestyle="-")
+    plt.ylim(0, 100)
+    plt.xlabel("Percentage of training data (Digits)")
+    plt.ylabel("Accuracy with Standard Deviation")
+    plt.legend()
+    plt.show()
 
+    # Graph of Training Time
+    plt.plot([i * 10 for i in range(1, 11)], runtimes)
+    plt.xlabel("Percentage of training data (Digits)")
+    plt.ylabel("Runtime of the Algorithm (Per Iteration)")
+    plt.show()
 
 
 
