@@ -63,10 +63,10 @@ class DigitTrain:
     # 3,4. Primary function which Creates & Trains Perceptron and Collects Stats
     # ---------------------------------------------------------------------------#
     def run(self):
-        data_train_init = self.loadData(path="classification/digitdata/trainingimages")
-        labels_train_init = self.loadLabels(path='classification/digitdata/traininglabels')
-        data_test = self.loadData(path='classification/digitdata/testimages')
-        labels_test = self.loadLabels(path='classification/digitdata/testlabels')
+        data_train_init = self.loadData(path='data/digitdata/trainingimages')
+        labels_train_init = self.loadLabels(path='data/digitdata/traininglabels')
+        data_test = self.loadData(path='data/digitdata/testimages')
+        labels_test = self.loadLabels(path='data/digitdata/testlabels')
 
         avg_accuracy = []
         stdev_accuracy = []
@@ -122,7 +122,7 @@ class DigitTrain:
 
 
     # ----------------------------------------------------------------#
-    # 4. Function to calculate accuracy of classification on Test Data
+    # 4. Function to calculate accuracy of data on Test Data
     # ----------------------------------------------------------------#
     def accuracy(self, p, data, labels, limit):
 

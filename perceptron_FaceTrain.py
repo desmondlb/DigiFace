@@ -61,10 +61,10 @@ class FaceTrain:
     # 3,4. Primary function which Creates & Trains Perceptron and Collects Stats
     # ---------------------------------------------------------------------------#
     def run(self):
-        data_train_init = self.loadData(path="classification/facedata/facedatatrain")
-        labels_train_init = self.loadLabels(path='classification/facedata/facedatatrainlabels')
-        data_test = self.loadData(path='classification/facedata/facedatatest')
-        labels_test = self.loadLabels(path='classification/facedata/facedatatestlabels')
+        data_train_init = self.loadData(path='data/facedata/facedatatrain')
+        labels_train_init = self.loadLabels(path='data/facedata/facedatatrainlabels')
+        data_test = self.loadData(path='data/facedata/facedatatest')
+        labels_test = self.loadLabels(path='data/facedata/facedatatestlabels')
 
         avg_accuracy = []
         stdev_accuracy = []
@@ -120,7 +120,7 @@ class FaceTrain:
 
 
     # ----------------------------------------------------------------#
-    # 4. Function to calculate accuracy of classification on Test Data
+    # 4. Function to calculate accuracy of data on Test Data
     # ----------------------------------------------------------------#
     def accuracy(self, p, data, labels, limit):
         count = 0
