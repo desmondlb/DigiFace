@@ -63,10 +63,10 @@ class DigitTrain:
     # 3,4. Primary function which Creates & Trains Perceptron and Collects Stats
     # ---------------------------------------------------------------------------#
     def run(self):
-        data_train_init = self.loadData(path='data/digitdata/trainingimages')
-        labels_train_init = self.loadLabels(path='data/digitdata/traininglabels')
-        data_test = self.loadData(path='data/digitdata/testimages')
-        labels_test = self.loadLabels(path='data/digitdata/testlabels')
+        data_train_init = self.loadData(path="data/facedata/facedatatrain")
+        labels_train_init = self.loadLabels(path='data/facedata/facedatatrainlabels')
+        data_test = self.loadData(path='data/facedata/facedatatest')
+        labels_test = self.loadLabels(path='data/facedata/facedatatestlabels')
 
         avg_accuracy = []
         stdev_accuracy = []
