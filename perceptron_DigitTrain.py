@@ -4,15 +4,18 @@ from Perceptron import Perceptron
 from statistics import stdev, mean
 import matplotlib.pyplot as plt
 
-# Class to train Perceptron to classify digits
+
+
 class DigitTrain:
 
 
     def __init__(self):
         self.height = 28
         self.width = 28
+        self.count = 0
 
 
+    # read of file returns an empty string at EOF
 
     #---------------------------------------------------#
     # 2. Load and extract features from file
@@ -63,10 +66,10 @@ class DigitTrain:
     # 3,4. Primary function which Creates & Trains Perceptron and Collects Stats
     # ---------------------------------------------------------------------------#
     def run(self):
-        data_train_init = self.loadData(path="data/facedata/facedatatrain")
-        labels_train_init = self.loadLabels(path='data/facedata/facedatatrainlabels')
-        data_test = self.loadData(path='data/facedata/facedatatest')
-        labels_test = self.loadLabels(path='data/facedata/facedatatestlabels')
+        data_train_init = self.loadData(path="data/digitdata/trainingimages")
+        labels_train_init = self.loadLabels(path='data/digitdata/traininglabels')
+        data_test = self.loadData(path='data/digitdata/testimages')
+        labels_test = self.loadLabels(path='data/digitdata/testlabels')
 
         avg_accuracy = []
         stdev_accuracy = []
@@ -92,9 +95,9 @@ class DigitTrain:
                 print(">", end="")
                 data_train, labels_train = self.rand_sampled_train_data(data_train_init,
                                                                         labels_train_init, limit)
-                p = Perceptron(method='0', w=w)
+                p = Perceptron(method='weighted avg delta', w=w)
 
-                # agg_error and iter are used to calculate weighted average of error
+                # agg_error and iter are used to calculated weighted average of error
                 agg_error = np.zeros(785)
                 iter = 0.0
 
@@ -122,7 +125,7 @@ class DigitTrain:
 
 
     # ----------------------------------------------------------------#
-    # 4. Function to calculate accuracy of data on Test Data
+    # 4. Function to calculate accuracy of classification on Test Data
     # ----------------------------------------------------------------#
     def accuracy(self, p, data, labels, limit):
 
@@ -150,7 +153,7 @@ if __name__ == '__main__':
     # Graph of Accuracy Stats
     plt.errorbar([i * 10 for i in range(1, 11)], means, yerr=std_deviations, ecolor='k', fmt='o', markersize=8,
                  capsize=6, color="r", linestyle="-")
-    #plt.ylim(0, 100)
+    plt.ylim(0, 100)
     plt.xlabel("Percentage of training data (Digits)")
     plt.ylabel("Accuracy with Standard Deviation")
     plt.legend()
