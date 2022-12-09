@@ -149,14 +149,14 @@ if __name__ == '__main__':
     plt.errorbar([i * 10 for i in range(1, 11)], means, yerr=std_deviations, ecolor='k', fmt='o', markersize=8,
                  capsize=6, color="r", linestyle="-")
     #plt.ylim(0, 100)
-    plt.xlabel("Percentage of training data (Digits)")
+    plt.xlabel("Percentage of training data (Faces)")
     plt.ylabel("Accuracy with Standard Deviation")
     plt.legend()
     plt.show()
 
     # Graph of Training Time
     plt.plot([i * 10 for i in range(1, 11)], runtimes)
-    plt.xlabel("Percentage of training data (Digits)")
+    plt.xlabel("Percentage of training data (Faces)")
     plt.ylabel("Runtime of the Algorithm (Per Iteration)")
     plt.show()
 
