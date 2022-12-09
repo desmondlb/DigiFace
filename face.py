@@ -1,10 +1,15 @@
+# import pandas as pd
+import random
+import statistics
 import numpy as np
 from statistics import stdev
 from bayesian import Bayesian
+from SVM import SVM
+import math
 import matplotlib.pyplot as plt
 import time
 
-class Faces(Bayesian):
+class Faces(Bayesian,SVM):
     def __init__(self, feature_dims=None) -> None:
 
         self.feature_dims = feature_dims
@@ -56,9 +61,51 @@ if __name__ == '__main__':
     plt.xlabel("Percentage of training data (Faces)")
     plt.ylabel("Accuracy with Standard Deviation")
     plt.legend()
+    plt.title("Naive Bayes")
     plt.show()
 
     plt.plot(list(runtimes.keys()),list(runtimes.values()))
     plt.xlabel("Percentage of training data (Faces)")
     plt.ylabel("Runtime of the Algorithm (Per Iteration)")
+    plt.title("Naive Bayes")
+    plt.show()
+
+    #SVM classifier
+    runtimes.clear()
+    start_time = time.time()
+    accuracy = obj.classifier(obj.train_data,obj.train_lables,obj.test_data,obj.test_lables)
+    iter = [10,20,30,40,50,60,70,80,90,100]
+    obj_train_s = obj.train_data.shape[0]/100
+    itr =[int(item * obj_train_s) for item in iter]
+    acc = [[0]*10]*10
+    std_arr = []
+    std_acc = [] 
+    mean_arr =[] 
+
+    for i in range(0,10):   #for % of training data to use
+        itr_data_train = []
+        itr_data_train_labels=[]
+        index = random.sample(range(0,obj.train_data.shape[0]),itr[i])
+        for j in range(0,len(index)):
+            itr_data_train.append(obj.train_data[index[j],:,:])
+            itr_data_train_labels.append(obj.train_lables[index[j]])
+        for k in range(0,10): # number of iterations to be done with % of training data
+            acc[i][k]=obj.classifier(itr_data_train,itr_data_train_labels,obj.test_data,obj.test_lables)
+        runtimes[i] = (time.time() - start_time)/10
+        std_arr.append(statistics.stdev(acc[i]))
+        mean_arr.append(statistics.fmean(acc[i])*100)
+        print("On",iter[i],"percent data mean accuracy with SVM on faces is:",mean_arr[i],"\n")
+        print("On",iter[i],"percent data standard deviation with SVM on faces is:",std_arr[i],"\n")
+
+    plt.errorbar([i*10 for i in range(1, 11)], mean_arr, yerr=std_arr, ecolor='k', fmt='o', markersize=8, capsize=6, color="r", linestyle="-")
+    plt.xlabel("Percentage of training data (Faces)")
+    plt.ylabel("Accuracy with Standard Deviation")
+    plt.legend()
+    plt.title("SVM")
+    plt.show()
+
+    plt.plot([i*10 for i in range(1, 11)],list(runtimes.values()))
+    plt.xlabel("Percentage of training data (Faces)")
+    plt.ylabel("Runtime of the Algorithm (Per Iteration)")
+    plt.title("SVM")
     plt.show()
